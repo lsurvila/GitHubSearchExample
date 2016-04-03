@@ -7,6 +7,7 @@ import java.util.List;
 public interface SearchView {
 
     void showResults(List<GitHubRepo> gitHubRepos);
+    void appendResults(List<GitHubRepo> gitHubRepos);
     void showMessage(String errorMessage);
 
 }

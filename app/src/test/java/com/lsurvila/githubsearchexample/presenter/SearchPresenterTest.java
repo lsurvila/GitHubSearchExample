@@ -212,8 +212,41 @@ public class SearchPresenterTest {
         verify(gitHubRepository).saveFavorite(gitHubRepo);
     }
 
-    // TODO remove favorite
-    // TODO paging
+    @Test
+    public void shouldRemoveFavorite() throws Exception {
+        GitHubRepo gitHubRepo = new GitHubRepo("0", "okhttp");
+
+        searchPresenter.removeFavorite(gitHubRepo);
+
+        assertThat(gitHubRepo.isFavorite()).isFalse();
+        verify(gitHubRepository).removeFavorite(gitHubRepo);
+    }
+
+    @Test
+    public void shouldAppendResultsOfNextPage() throws Exception {
+        String query = "okhttp";
+        List<GitHubRepo> results = mockResult();
+        when(gitHubRepository.search(query)).thenReturn(Observable.just(results));
+        when(gitHubRepository.getFavorites(query)).thenReturn(Observable.just(new ArrayList<>()));
+
+        searchPresenter.search(query);
+
+        verify(searchView).showResults(results);
+        assertThat(searchPresenter.currentPage).isEqualTo(0);
+
+        // user scrolls at the bottom of screen, then another search query is executed
+
+        List<GitHubRepo> resultsFromOtherPage = mockResult();
+        when(gitHubRepository.search(query)).thenReturn(Observable.just(resultsFromOtherPage));
+
+        searchPresenter.searchNextPage(query);
+
+        verify(searchView).appendResults(resultsFromOtherPage);
+        assertThat(searchPresenter.currentPage).isEqualTo(1);
+    }
+
+    // TODO paging if no more pages
+    // TODO reset paging
     // TODO click on item
 
     private List<GitHubRepo> mockResult() {

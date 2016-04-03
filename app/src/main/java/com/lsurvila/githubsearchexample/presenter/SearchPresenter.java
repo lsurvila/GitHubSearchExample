@@ -1,5 +1,7 @@
 package com.lsurvila.githubsearchexample.presenter;
 
+import android.support.annotation.VisibleForTesting;
+
 import com.lsurvila.githubsearchexample.AndroidUtils;
 import com.lsurvila.githubsearchexample.R;
 import com.lsurvila.githubsearchexample.data.GitHubRepository;
@@ -15,6 +17,8 @@ public class SearchPresenter {
     private final SearchView searchView;
     private final GitHubRepository gitHubRepository;
     private final AndroidUtils androidUtils;
+    @VisibleForTesting
+    int currentPage = 0;
 
     public SearchPresenter(SearchView searchView, GitHubRepository gitHubRepository, AndroidUtils androidUtils) {
         this.searchView = searchView;
@@ -52,14 +56,29 @@ public class SearchPresenter {
                         if (searchResults.size() == 0) {
                             searchView.showMessage(androidUtils.getString(R.string.error_not_found, query));
                         } else {
-                            searchView.showResults(searchResults);
+                            if (currentPage == 0) {
+                                searchView.showResults(searchResults);
+                            } else {
+                                searchView.appendResults(searchResults);
+                            }
                         }
                     }, Throwable::printStackTrace);
         }
+    }
+
+    public void searchNextPage(String query) {
+        currentPage++;
+        search(query);
     }
 
     public void saveFavorite(GitHubRepo gitHubRepo) {
         gitHubRepo.setFavorite(true);
         gitHubRepository.saveFavorite(gitHubRepo);
     }
+
+    public void removeFavorite(GitHubRepo gitHubRepo) {
+        gitHubRepo.setFavorite(false);
+        gitHubRepository.removeFavorite(gitHubRepo);
+    }
+
 }

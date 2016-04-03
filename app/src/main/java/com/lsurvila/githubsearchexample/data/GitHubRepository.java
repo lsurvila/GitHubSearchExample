@@ -23,4 +23,9 @@ public class GitHubRepository {
     public Observable<List<GitHubRepo>> getFavorites(String query) {
         return null;
     }
+
+    public void removeFavorite(GitHubRepo gitHubRepo) {
+
+    }
+
 }
