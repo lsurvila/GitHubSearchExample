@@ -25,13 +25,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-// TODO go through all cases again
-// query empty, not empty
-// search success, fail, empty
-// favorite success, fail, empty
-
-// remove favorite
-// paging
 public class SearchPresenterTest {
 
     private SearchPresenter searchPresenter;
@@ -54,7 +47,60 @@ public class SearchPresenterTest {
     }
 
     @Test
-    public void shouldShowResultsWhenSearchIsSuccessful() throws Exception {
+    public void shouldShowAllFavorites_emptyQuery_getAllFavoritesSuccess() throws Exception {
+        String searchQuery = "";
+        List<GitHubRepo> result = mockFavoriteResult();
+        when(gitHubRepository.getAllFavorites()).thenReturn(Observable.just(result));
+
+        searchPresenter.search(searchQuery);
+
+        verify(searchView).showResults(result);
+    }
+
+    @Test
+    public void shouldShowGenericError_emptyQuery_getAllFavoritesFail() throws Exception {
+        String searchQuery = "";
+        String genericError = "Error happened. Please try again.";
+        when(gitHubRepository.getAllFavorites()).thenReturn(Observable.error(new Throwable("Error while retrieving favorites.")));
+        when(androidUtils.getString(R.string.error_generic)).thenReturn(genericError);
+
+        searchPresenter.search(searchQuery);
+
+        verify(searchView).showMessage(genericError);
+    }
+
+    @Test
+    public void shouldShowSearchResultsIncludingFavorites_searchSuccess_getFavoritesSuccess() throws Exception {
+        String searchQuery = "okhttp";
+        List<GitHubRepo> result = mockResult();
+        List<GitHubRepo> favorites = mockFavoriteResult();
+        when(gitHubRepository.search(searchQuery)).thenReturn(Observable.just(result));
+        when(gitHubRepository.getFavorites(searchQuery)).thenReturn(Observable.just(favorites));
+
+        searchPresenter.search(searchQuery);
+
+        verify(searchView).showResults(result);
+        assertThat(result.get(0).isFavorite()).isTrue();
+        assertThat(result.get(1).isFavorite()).isFalse();
+        assertThat(result.get(2).isFavorite()).isFalse();
+        assertThat(result.get(3).isFavorite()).isTrue();
+    }
+
+    @Test
+    public void shouldShowSearchResultsAndNoError_searchSuccess_getFavoritesFail() throws Exception {
+        String searchQuery = "okhttp";
+        List<GitHubRepo> result = mockResult();
+        when(gitHubRepository.search(searchQuery)).thenReturn(Observable.just(result));
+        when(gitHubRepository.getFavorites(searchQuery)).thenReturn(Observable.error(new Throwable("Error")));
+
+        searchPresenter.search(searchQuery);
+
+        verify(searchView).showResults(result);
+        verify(searchView, never()).showMessage(anyString());
+    }
+
+    @Test
+    public void shouldShowSearchResultsAndNoError_searchSuccess_getFavoritesEmpty() throws Exception {
         String searchQuery = "okhttp";
         List<GitHubRepo> result = mockResult();
         when(gitHubRepository.search(searchQuery)).thenReturn(Observable.just(result));
@@ -63,58 +109,98 @@ public class SearchPresenterTest {
         searchPresenter.search(searchQuery);
 
         verify(searchView).showResults(result);
+        verify(searchView, never()).showMessage(anyString());
     }
 
-    @SuppressWarnings("unchecked")
     @Test
-    public void shouldShowGenericErrorWhenSearchIsFailed() throws Exception {
+    public void shouldShowFavoritesAndGenericError_searchFail_getFavoritesSuccess() throws Exception {
         String searchQuery = "okhttp";
-        String errorMessage = "Error from server.";
-        String genericError = "Generic error to show for user";
-        when(gitHubRepository.search(searchQuery)).thenReturn(Observable.error(new Throwable(errorMessage)));
+        List<GitHubRepo> result = mockFavoriteResult();
+        String genericError = "genericError";
+        when(gitHubRepository.search(searchQuery)).thenReturn(Observable.error(new Throwable("Error.")));
+        when(gitHubRepository.getFavorites(searchQuery)).thenReturn(Observable.just(result));
         when(androidUtils.getString(R.string.error_generic)).thenReturn(genericError);
 
         searchPresenter.search(searchQuery);
 
-        verify(searchView).showSnackbar(genericError);
-        verify(searchView, never()).showResults(anyList());
-    }
-
-    @Test
-    public void shouldShowOnlyFavoritesWhenQueryIsEmpty() throws Exception {
-        String searchQuery = "";
-        List<GitHubRepo> favoriteResults = mockFavoriteResult();
-        when(gitHubRepository.getAllFavorites()).thenReturn(Observable.just(favoriteResults));
-
-        searchPresenter.search(searchQuery);
-
-        verify(searchView).showResults(favoriteResults);
-    }
-
-    @Test
-    public void shouldClearResultsWhenThereAreNoFavoritesAndQueryIsEmpty() throws Exception {
-        String searchQuery = "";
-        List<GitHubRepo> emptyFavoritesResults = new ArrayList<>();
-        when(gitHubRepository.getAllFavorites()).thenReturn(Observable.just(emptyFavoritesResults));
-
-        searchPresenter.search(searchQuery);
-
-        verify(searchView).showResults(emptyFavoritesResults);
+        verify(searchView).showResults(result);
+        verify(searchView).showMessage(genericError);
     }
 
     @SuppressWarnings("unchecked")
     @Test
-    public void shouldShowErrorIfRetrievingFavoritesFailed() throws Exception {
-        String searchQuery = "";
-        String error = "Failed to retrieve favorites. Try to restart app.";
-        when(gitHubRepository.getAllFavorites()).thenReturn(Observable.error(new Throwable("Error occurred.")));
-        when(androidUtils.getString(R.string.error_favorites_failed)).thenReturn(error);
+    public void shouldShowGenericError_searchFail_getFavoritesFail() throws Exception {
+        String searchQuery = "okhttp";
+        String genericError = "genericError";
+        when(gitHubRepository.search(searchQuery)).thenReturn(Observable.error(new Throwable("Error.")));
+        when(gitHubRepository.getFavorites(searchQuery)).thenReturn(Observable.error(new Throwable("Error.")));
+        when(androidUtils.getString(R.string.error_generic)).thenReturn(genericError);
 
         searchPresenter.search(searchQuery);
 
-        verify(searchView).showSnackbar(error);
+        verify(searchView, never()).showResults(anyList());
+        verify(searchView).showMessage(genericError);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void shouldShowGenericError_searchFail_getFavoritesEmpty() throws Exception {
+        String searchQuery = "okhttp";
+        String genericError = "genericError";
+        when(gitHubRepository.search(searchQuery)).thenReturn(Observable.error(new Throwable("Error.")));
+        when(gitHubRepository.getFavorites(searchQuery)).thenReturn(Observable.just(new ArrayList<>()));
+        when(androidUtils.getString(R.string.error_generic)).thenReturn(genericError);
+
+        searchPresenter.search(searchQuery);
+
+        verify(searchView, never()).showResults(anyList());
+        verify(searchView).showMessage(genericError);
+    }
+
+    @Test // rare case, when repository is removed, but was made favorite by user before, we still show them
+    public void shouldShowFavoriteAndNoError_searchEmpty_getFavoritesSuccess() throws Exception {
+        String searchQuery = "okhttp";
+        List<GitHubRepo> favorites = mockFavoriteResult();
+        when(gitHubRepository.search(searchQuery)).thenReturn(Observable.just(new ArrayList<>()));
+        when(gitHubRepository.getFavorites(searchQuery)).thenReturn(Observable.just(favorites));
+
+        searchPresenter.search(searchQuery);
+
+        verify(searchView, never()).showMessage(anyString());
+        verify(searchView).showResults(favorites);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void shouldShowNotFoundError_searchEmpty_getFavoritesFail() throws Exception {
+        String searchQuery = "okhttp";
+        String notFoundError = "Not found error.";
+        when(gitHubRepository.search(searchQuery)).thenReturn(Observable.just(new ArrayList<>()));
+        when(gitHubRepository.getFavorites(searchQuery)).thenReturn(Observable.error(new Throwable("Error")));
+        when(androidUtils.getString(R.string.error_not_found, searchQuery)).thenReturn(notFoundError);
+
+        searchPresenter.search(searchQuery);
+
+        verify(searchView).showMessage(notFoundError);
         verify(searchView, never()).showResults(anyList());
     }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void shouldShowNotFoundError_searchEmpty_getFavoritesEmpty() throws Exception {
+        String searchQuery = "okhttp";
+        String notFoundError = "Not found error.";
+        when(gitHubRepository.search(searchQuery)).thenReturn(Observable.just(new ArrayList<>()));
+        when(gitHubRepository.getFavorites(searchQuery)).thenReturn(Observable.just(new ArrayList<>()));
+        when(androidUtils.getString(R.string.error_not_found, searchQuery)).thenReturn(notFoundError);
+
+        searchPresenter.search(searchQuery);
+
+        verify(searchView).showMessage(notFoundError);
+        verify(searchView, never()).showResults(anyList());
+    }
+
 
     @Test
     public void shouldSaveFavorite() throws Exception {
@@ -126,70 +212,9 @@ public class SearchPresenterTest {
         verify(gitHubRepository).saveFavorite(gitHubRepo);
     }
 
-    // TODO search (no favorites among search results) +++
-    // TODO search + favorites (favorites are among search results) +++
-    // TODO favorites (search has no results)
     // TODO remove favorite
     // TODO paging
-
-    @Test
-    public void shouldShowResultsIncludingFavorites() throws Exception {
-        String searchQuery = "okhttp";
-        List<GitHubRepo> results = mockResult();
-        List<GitHubRepo> favoriteResults = mockFavoriteResult();
-        when(gitHubRepository.search(searchQuery)).thenReturn(Observable.just(results));
-        when(gitHubRepository.getFavorites(searchQuery)).thenReturn(Observable.just(favoriteResults));
-
-        searchPresenter.search(searchQuery);
-
-        verify(searchView).showResults(results);
-        assertThat(results.get(0).isFavorite()).isTrue();
-        assertThat(results.get(1).isFavorite()).isFalse();
-        assertThat(results.get(2).isFavorite()).isFalse();
-        assertThat(results.get(3).isFavorite()).isTrue();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void shouldShowNotFoundErrorIfSearchAndFavoritesHaveNoResults() throws Exception {
-        String searchQuery = "okxml";
-        String notFoundError = "We couldn’t find any repositories matching 'okxml'";
-        when(gitHubRepository.search(searchQuery)).thenReturn(Observable.just(new ArrayList<>()));
-        when(gitHubRepository.getFavorites(searchQuery)).thenReturn(Observable.just(new ArrayList<>()));
-        when(androidUtils.getString(R.string.error_not_found, searchQuery)).thenReturn(notFoundError);
-
-        searchPresenter.search(searchQuery);
-
-        verify(searchView).showSnackbar(notFoundError);
-        verify(searchView, never()).showResults(anyList());
-    }
-
-    @Test
-    public void shouldShowFavoriteIfSearchHasNoResults() throws Exception {
-        String searchQuery = "okhttp";
-        List<GitHubRepo> favorites = mockFavoriteResult();
-        when(gitHubRepository.search(searchQuery)).thenReturn(Observable.just(new ArrayList<>()));
-        when(gitHubRepository.getFavorites(searchQuery)).thenReturn(Observable.just(favorites));
-
-        searchPresenter.search(searchQuery);
-
-        verify(searchView).showResults(favorites);
-        verify(searchView, never()).showSnackbar(anyString());
-    }
-
-    @Test
-    public void shouldShowFavoriteIfSearchHasFailed() throws Exception {
-        String searchQuery = "okhttp";
-        List<GitHubRepo> favorites = mockFavoriteResult();
-        when(gitHubRepository.search(searchQuery)).thenReturn(Observable.error(new Throwable("Error occurred.")));
-        when(gitHubRepository.getFavorites(searchQuery)).thenReturn(Observable.just(favorites));
-
-        searchPresenter.search(searchQuery);
-
-        verify(searchView).showResults(favorites);
-        verify(searchView, never()).showSnackbar(anyString());
-
-    }
+    // TODO click on item
 
     private List<GitHubRepo> mockResult() {
         List<GitHubRepo> gitHubRepos = new ArrayList<>();

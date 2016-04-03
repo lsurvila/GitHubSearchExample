@@ -3,5 +3,4 @@
     <string name="search_hint">Search</string>
     <string name="error_generic">Something went wrong. Please check your internet connection and try again later.</string>
     <string name="error_not_found">We could not find any repositories matching \'%1$s\'</string>
-    <string name="error_favorites_failed">Failed to retrieve favorites.</string>
 </resources>

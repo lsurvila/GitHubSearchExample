@@ -7,17 +7,14 @@ import com.lsurvila.githubsearchexample.model.GitHubRepo;
 import com.lsurvila.githubsearchexample.view.SearchView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import rx.Observable;
-import rx.functions.Func1;
-import rx.functions.Func2;
 
 public class SearchPresenter {
 
-    private SearchView searchView;
-    private GitHubRepository gitHubRepository;
-    private AndroidUtils androidUtils;
+    private final SearchView searchView;
+    private final GitHubRepository gitHubRepository;
+    private final AndroidUtils androidUtils;
 
     public SearchPresenter(SearchView searchView, GitHubRepository gitHubRepository, AndroidUtils androidUtils) {
         this.searchView = searchView;
@@ -28,16 +25,16 @@ public class SearchPresenter {
     public void search(String query) {
         if (androidUtils.isStringEmpty(query)) {
             gitHubRepository.getAllFavorites()
-                    .subscribe(gitHubRepos -> {
-                        searchView.showResults(gitHubRepos);
-                    }, throwable -> {
-                        searchView.showSnackbar(androidUtils.getString(R.string.error_favorites_failed));
+                    .subscribe(searchView::showResults, throwable -> {
+                        searchView.showMessage(androidUtils.getString(R.string.error_generic));
                     });
         } else {
             Observable.zip(gitHubRepository.search(query).onErrorResumeNext(throwable -> {
-                searchView.showSnackbar(androidUtils.getString(R.string.error_generic));
+                searchView.showMessage(androidUtils.getString(R.string.error_generic));
                 return Observable.just(new ArrayList<>());
-            }), gitHubRepository.getFavorites(query), (searchResults, favorites) -> {
+            }), gitHubRepository.getFavorites(query).onErrorResumeNext(throwable1 -> {
+                return Observable.just(new ArrayList<>());
+            }), (searchResults, favorites) -> {
                 for (int i = 0; i < searchResults.size(); i++) {
                     for (int j = 0; j < favorites.size(); j++) {
                         if (searchResults.get(i).getId().equals(favorites.get(j).getId())) {
@@ -53,7 +50,7 @@ public class SearchPresenter {
             })
                     .subscribe(searchResults -> {
                         if (searchResults.size() == 0) {
-                            searchView.showSnackbar(androidUtils.getString(R.string.error_not_found, query));
+                            searchView.showMessage(androidUtils.getString(R.string.error_not_found, query));
                         } else {
                             searchView.showResults(searchResults);
                         }

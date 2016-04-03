@@ -18,6 +18,7 @@ import butterknife.ButterKnife;
  */
 public class SearchActivityFragment extends Fragment {
 
+    @SuppressWarnings("WeakerAccess")
     @Bind(R.id.search_result_list)
     RecyclerView searchResultList;
 

@@ -7,6 +7,6 @@ import java.util.List;
 public interface SearchView {
 
     void showResults(List<GitHubRepo> gitHubRepos);
-    void showSnackbar(String errorMessage);
+    void showMessage(String errorMessage);
 
 }
