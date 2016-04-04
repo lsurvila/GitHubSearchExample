@@ -1,11 +1,11 @@
 package com.lsurvila.githubsearchexample.presenter;
 
-import android.support.annotation.VisibleForTesting;
-
 import com.lsurvila.githubsearchexample.AndroidUtils;
 import com.lsurvila.githubsearchexample.R;
-import com.lsurvila.githubsearchexample.data.GitHubRepository;
+import com.lsurvila.githubsearchexample.data.GitHubDao;
+import com.lsurvila.githubsearchexample.model.Paginator;
 import com.lsurvila.githubsearchexample.model.GitHubRepo;
+import com.lsurvila.githubsearchexample.model.GitHubRepoViewModel;
 import com.lsurvila.githubsearchexample.view.SearchView;
 
 import java.util.ArrayList;
@@ -15,70 +15,77 @@ import rx.Observable;
 public class SearchPresenter {
 
     private final SearchView searchView;
-    private final GitHubRepository gitHubRepository;
+    private final GitHubDao gitHubDao;
     private final AndroidUtils androidUtils;
-    @VisibleForTesting
-    int currentPage = 0;
+    private final Paginator paginator;
 
-    public SearchPresenter(SearchView searchView, GitHubRepository gitHubRepository, AndroidUtils androidUtils) {
+    public SearchPresenter(SearchView searchView, GitHubDao gitHubDao, AndroidUtils androidUtils, Paginator paginator) {
         this.searchView = searchView;
-        this.gitHubRepository = gitHubRepository;
+        this.gitHubDao = gitHubDao;
         this.androidUtils = androidUtils;
+        this.paginator = paginator;
     }
 
     public void search(String query) {
-        if (androidUtils.isStringEmpty(query)) {
-            gitHubRepository.getAllFavorites()
-                    .subscribe(searchView::showResults, throwable -> {
-                        searchView.showMessage(androidUtils.getString(R.string.error_generic));
-                    });
-        } else {
-            Observable.zip(gitHubRepository.search(query).onErrorResumeNext(throwable -> {
-                searchView.showMessage(androidUtils.getString(R.string.error_generic));
-                return Observable.just(new ArrayList<>());
-            }), gitHubRepository.getFavorites(query).onErrorResumeNext(throwable1 -> {
-                return Observable.just(new ArrayList<>());
-            }), (searchResults, favorites) -> {
-                for (int i = 0; i < searchResults.size(); i++) {
-                    for (int j = 0; j < favorites.size(); j++) {
-                        if (searchResults.get(i).getId().equals(favorites.get(j).getId())) {
-                            searchResults.get(i).setFavorite(true);
-                        }
-                    }
-                }
-                if (searchResults.size() > 0) {
-                    return searchResults;
-                } else {
-                    return favorites;
-                }
-            })
-                    .subscribe(searchResults -> {
-                        if (searchResults.size() == 0) {
-                            searchView.showMessage(androidUtils.getString(R.string.error_not_found, query));
-                        } else {
-                            if (currentPage == 0) {
-                                searchView.showResults(searchResults);
-                            } else {
-                                searchView.appendResults(searchResults);
-                            }
-                        }
-                    }, Throwable::printStackTrace);
-        }
+        paginator.reset();
+        search(query, paginator.getNextPage());
     }
 
-    public void searchNextPage(String query) {
-        currentPage++;
-        search(query);
+    public void searchNext(String query) {
+        search(query, paginator.getNextPage());
+    }
+
+    private void search(String query, int pageNumber) {
+        if (!paginator.isPageInvalid()) {
+            if (androidUtils.isStringEmpty(query)) {
+                gitHubDao.getAllFavorites()
+                        .subscribe(gitHubRepoViewModel -> searchView.showResults(gitHubRepoViewModel.getGitHubRepos()), throwable -> {
+                            searchView.showMessage(androidUtils.getString(R.string.error_generic));
+                        });
+            } else {
+                Observable.zip(gitHubDao.search(query, pageNumber).onErrorResumeNext(throwable -> {
+                    searchView.showMessage(androidUtils.getString(R.string.error_generic));
+                    return Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0));
+                }), gitHubDao.getFavorites(query).onErrorResumeNext(throwable1 -> {
+                    return Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0));
+                }), (searchResults, favorites) -> {
+                    for (int i = 0; i < searchResults.getGitHubRepos().size(); i++) {
+                        for (int j = 0; j < favorites.getGitHubRepos().size(); j++) {
+                            if (searchResults.getGitHubRepos().get(i).getId().equals(favorites.getGitHubRepos().get(j).getId())) {
+                                searchResults.getGitHubRepos().get(i).setFavorite(true);
+                            }
+                        }
+                    }
+                    if (searchResults.getGitHubRepos().size() > 0) {
+                        return searchResults;
+                    } else {
+                        return favorites;
+                    }
+                })
+                        .subscribe(searchResults -> {
+                            if (searchResults.getGitHubRepos().size() == 0) {
+                                searchView.showMessage(androidUtils.getString(R.string.error_not_found, query));
+                            } else {
+                                paginator.setLastPage(searchResults.getLastPage());
+                                if (paginator.isFirstPage()) {
+                                    searchView.showResults(searchResults.getGitHubRepos());
+                                } else {
+                                    searchView.appendResults(searchResults.getGitHubRepos());
+                                }
+                            }
+                        }, Throwable::printStackTrace);
+            }
+        }
     }
 
     public void saveFavorite(GitHubRepo gitHubRepo) {
         gitHubRepo.setFavorite(true);
-        gitHubRepository.saveFavorite(gitHubRepo);
+        gitHubDao.saveFavorite(gitHubRepo);
     }
 
     public void removeFavorite(GitHubRepo gitHubRepo) {
         gitHubRepo.setFavorite(false);
-        gitHubRepository.removeFavorite(gitHubRepo);
+        gitHubDao.removeFavorite(gitHubRepo);
     }
 
 }

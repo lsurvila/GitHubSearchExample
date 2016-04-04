@@ -1,14 +1,13 @@
 package com.lsurvila.githubsearchexample.data;
 
 import com.lsurvila.githubsearchexample.model.GitHubRepo;
-
-import java.util.List;
+import com.lsurvila.githubsearchexample.model.GitHubRepoViewModel;
 
 import rx.Observable;
 
-public class GitHubRepository {
+public class GitHubDao {
 
-    public Observable<List<GitHubRepo>> search(String searchQuery) {
+    public Observable<GitHubRepoViewModel> search(String searchQuery, int pageNumber) {
         return null;
     }
 
@@ -16,11 +15,11 @@ public class GitHubRepository {
 
     }
 
-    public Observable<List<GitHubRepo>> getAllFavorites() {
+    public Observable<GitHubRepoViewModel> getAllFavorites() {
         return null;
     }
 
-    public Observable<List<GitHubRepo>> getFavorites(String query) {
+    public Observable<GitHubRepoViewModel> getFavorites(String query) {
         return null;
     }
 
