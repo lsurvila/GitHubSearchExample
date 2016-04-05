@@ -88,4 +88,7 @@ public class SearchPresenter {
         gitHubDao.removeFavorite(gitHubRepo);
     }
 
+    public void requestDetails(GitHubRepo gitHubRepo) {
+        searchView.openDetails(gitHubRepo.getUrl());
+    }
 }

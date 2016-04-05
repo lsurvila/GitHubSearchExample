@@ -208,7 +208,7 @@ public class SearchPresenterTest {
 
     @Test
     public void shouldSaveFavorite() throws Exception {
-        GitHubRepo gitHubRepo = new GitHubRepo("0", "okhttp");
+        GitHubRepo gitHubRepo = new GitHubRepo("0", "okhttp", "https://github.com/square/okhttp");
 
         searchPresenter.saveFavorite(gitHubRepo);
 
@@ -218,7 +218,7 @@ public class SearchPresenterTest {
 
     @Test
     public void shouldRemoveFavorite() throws Exception {
-        GitHubRepo gitHubRepo = new GitHubRepo("0", "okhttp");
+        GitHubRepo gitHubRepo = new GitHubRepo("0", "okhttp", "https://github.com/square/okhttp");
 
         searchPresenter.removeFavorite(gitHubRepo);
 
@@ -252,28 +252,37 @@ public class SearchPresenterTest {
         verify(searchView, never()).appendResults(result.getGitHubRepos());
     }
 
+    @Test
+    public void shouldOpenRepoDetails_whenRequested() throws Exception {
+        GitHubRepo gitHubRepo = new GitHubRepo("0", "okhttp", "https://github.com/square/okhttp");
+
+        searchPresenter.requestDetails(gitHubRepo);
+
+        verify(searchView).openDetails(gitHubRepo.getUrl());
+    }
+
     private GitHubRepoViewModel mockResult() {
         List<GitHubRepo> gitHubRepos = new ArrayList<>();
-        gitHubRepos.add(new GitHubRepo("1", "square/okhttp"));
-        gitHubRepos.add(new GitHubRepo("2", "hongyangAndroid/okhttp-utils"));
-        gitHubRepos.add(new GitHubRepo("3", "duzechao/OKHttpUtils"));
-        gitHubRepos.add(new GitHubRepo("4", "kymjs/RxVolley"));
+        gitHubRepos.add(new GitHubRepo("1", "square/okhttp", "https://github.com/square/okhttp"));
+        gitHubRepos.add(new GitHubRepo("2", "hongyangAndroid/okhttp-utils", "url1"));
+        gitHubRepos.add(new GitHubRepo("3", "duzechao/OKHttpUtils", "url2"));
+        gitHubRepos.add(new GitHubRepo("4", "kymjs/RxVolley", "url3"));
         return new GitHubRepoViewModel(gitHubRepos, 2);
     }
 
     private GitHubRepoViewModel mockResultOnePage() {
         List<GitHubRepo> gitHubRepos = new ArrayList<>();
-        gitHubRepos.add(new GitHubRepo("1", "square/okhttp"));
-        gitHubRepos.add(new GitHubRepo("2", "hongyangAndroid/okhttp-utils"));
-        gitHubRepos.add(new GitHubRepo("3", "duzechao/OKHttpUtils"));
-        gitHubRepos.add(new GitHubRepo("4", "kymjs/RxVolley"));
+        gitHubRepos.add(new GitHubRepo("1", "square/okhttp", "https://github.com/square/okhttp"));
+        gitHubRepos.add(new GitHubRepo("2", "hongyangAndroid/okhttp-utils", "url1"));
+        gitHubRepos.add(new GitHubRepo("3", "duzechao/OKHttpUtils", "url2"));
+        gitHubRepos.add(new GitHubRepo("4", "kymjs/RxVolley", "url3"));
         return new GitHubRepoViewModel(gitHubRepos, 1);
     }
 
     private GitHubRepoViewModel mockFavoriteResult() {
         List<GitHubRepo> gitHubRepos = new ArrayList<>();
-        gitHubRepos.add(new GitHubRepo("1", "square/okhttp"));
-        gitHubRepos.add(new GitHubRepo("4", "kymjs/RxVolley"));
+        gitHubRepos.add(new GitHubRepo("1", "square/okhttp", "https://github.com/square/okhttp"));
+        gitHubRepos.add(new GitHubRepo("4", "kymjs/RxVolley", "url1"));
         gitHubRepos.get(0).setFavorite(true);
         gitHubRepos.get(1).setFavorite(true);
         return new GitHubRepoViewModel(gitHubRepos, 0);
