@@ -1,5 +1,7 @@
 package com.lsurvila.githubsearchexample.presenter;
 
+import android.support.annotation.NonNull;
+
 import com.lsurvila.githubsearchexample.AndroidUtils;
 import com.lsurvila.githubsearchexample.R;
 import com.lsurvila.githubsearchexample.data.GitHubDao;
@@ -19,7 +21,8 @@ public class SearchPresenter {
     private final AndroidUtils androidUtils;
     private final Paginator paginator;
 
-    public SearchPresenter(SearchView searchView, GitHubDao gitHubDao, AndroidUtils androidUtils, Paginator paginator) {
+    public SearchPresenter(@NonNull SearchView searchView, @NonNull GitHubDao gitHubDao,
+                           @NonNull AndroidUtils androidUtils, @NonNull Paginator paginator) {
         this.searchView = searchView;
         this.gitHubDao = gitHubDao;
         this.androidUtils = androidUtils;

@@ -1,5 +1,7 @@
 package com.lsurvila.githubsearchexample.model;
 
+import android.support.annotation.NonNull;
+
 public class GitHubRepo {
 
     private final String id;
@@ -7,7 +9,7 @@ public class GitHubRepo {
     private boolean isFavorite;
     private final String url;
 
-    public GitHubRepo(String id, String repositoryName, String url) {
+    public GitHubRepo(@NonNull String id, @NonNull String repositoryName, @NonNull String url) {
         this.id = id;
         this.repositoryName = repositoryName;
         this.url = url;
