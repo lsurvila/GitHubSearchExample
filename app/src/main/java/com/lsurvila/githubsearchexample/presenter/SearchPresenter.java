@@ -43,7 +43,7 @@ public class SearchPresenter {
                             searchView.showMessage(androidUtils.getString(R.string.error_generic));
                         });
             } else {
-                Observable.zip(gitHubDao.search(query, pageNumber).onErrorResumeNext(throwable -> {
+                Observable.zip(gitHubDao.search(query, pageNumber, paginator.getPerPage()).onErrorResumeNext(throwable -> {
                     searchView.showMessage(androidUtils.getString(R.string.error_generic));
                     return Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0));
                 }), gitHubDao.getFavorites(query).onErrorResumeNext(throwable1 -> {

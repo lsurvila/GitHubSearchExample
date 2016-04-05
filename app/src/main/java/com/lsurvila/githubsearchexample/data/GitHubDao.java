@@ -7,7 +7,7 @@ import rx.Observable;
 
 public class GitHubDao {
 
-    public Observable<GitHubRepoViewModel> search(String searchQuery, int pageNumber) {
+    public Observable<GitHubRepoViewModel> search(String searchQuery, int pageNumber, int perPage) {
         return null;
     }
 
