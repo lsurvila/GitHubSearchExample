@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 import rx.Observable;
 
-public class SearchPresenter {
+class SearchPresenter {
 
     private final SearchView searchView;
     private final GitHubDao gitHubDao;

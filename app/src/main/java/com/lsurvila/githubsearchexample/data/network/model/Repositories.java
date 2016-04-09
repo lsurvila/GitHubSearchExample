@@ -4,7 +4,7 @@ import com.google.gson.annotations.Expose;
 
 import java.util.List;
 
-public class Repositories {
+class Repositories {
 
     @Expose
     private List<Item> items;

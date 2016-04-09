@@ -21,7 +21,7 @@ import rx.Observable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -131,7 +131,6 @@ public class SearchPresenterTest {
         verify(searchView).showMessage(genericError);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void shouldShowGenericError_searchFail_getFavoritesFail() throws Exception {
         String searchQuery = "okhttp";
@@ -142,11 +141,10 @@ public class SearchPresenterTest {
 
         searchPresenter.search(searchQuery);
 
-        verify(searchView, never()).showResults(anyList());
+        verify(searchView, never()).showResults(anyListOf(GitHubRepo.class));
         verify(searchView).showMessage(genericError);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void shouldShowGenericError_searchFail_getFavoritesEmpty() throws Exception {
         String searchQuery = "okhttp";
@@ -157,7 +155,7 @@ public class SearchPresenterTest {
 
         searchPresenter.search(searchQuery);
 
-        verify(searchView, never()).showResults(anyList());
+        verify(searchView, never()).showResults(anyListOf(GitHubRepo.class));
         verify(searchView).showMessage(genericError);
     }
 
@@ -174,8 +172,6 @@ public class SearchPresenterTest {
         verify(searchView).showResults(favorites.getGitHubRepos());
     }
 
-
-    @SuppressWarnings("unchecked")
     @Test
     public void shouldShowNotFoundError_searchEmpty_getFavoritesFail() throws Exception {
         String searchQuery = "okhttp";
@@ -187,10 +183,9 @@ public class SearchPresenterTest {
         searchPresenter.search(searchQuery);
 
         verify(searchView).showMessage(notFoundError);
-        verify(searchView, never()).showResults(anyList());
+        verify(searchView, never()).showResults(anyListOf(GitHubRepo.class));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void shouldShowNotFoundError_searchEmpty_getFavoritesEmpty() throws Exception {
         String searchQuery = "okhttp";
@@ -202,7 +197,7 @@ public class SearchPresenterTest {
         searchPresenter.search(searchQuery);
 
         verify(searchView).showMessage(notFoundError);
-        verify(searchView, never()).showResults(anyList());
+        verify(searchView, never()).showResults(anyListOf(GitHubRepo.class));
     }
 
 

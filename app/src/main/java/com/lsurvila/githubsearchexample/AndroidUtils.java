@@ -1,6 +1,7 @@
 package com.lsurvila.githubsearchexample;
 
 import android.content.res.Resources;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.text.TextUtils;
@@ -20,6 +21,10 @@ public class AndroidUtils {
 
     public boolean isStringEmpty(String text) {
         return TextUtils.isEmpty(text);
+    }
+
+    public String getQueryFromUrl(String url, String key) {
+        return Uri.parse(url).getQueryParameter(key);
     }
 
 }
