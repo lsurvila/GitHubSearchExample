@@ -7,9 +7,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.jakewharton.rxbinding.support.v7.widget.RxSearchView;
 import com.lsurvila.githubsearchexample.R;
 
+import java.util.concurrent.TimeUnit;
+
+import rx.android.schedulers.AndroidSchedulers;
+
 public class SearchActivity extends AppCompatActivity {
+
+    private SearchActivityFragment fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,7 +24,7 @@ public class SearchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_search);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        fragment = (SearchActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
     }
 
     @Override
@@ -27,6 +34,20 @@ public class SearchActivity extends AppCompatActivity {
         MenuItem searchItem = menu.findItem(R.id.search);
         SearchView searchView = (SearchView) searchItem.getActionView();
         searchView.setIconifiedByDefault(false);
+        fragment.setQueryChangeListener(RxSearchView.queryTextChanges(searchView)
+                // to prevent making requests too fast (as user may type fast),
+                // throttleLast will emit last item during 100ms from the time
+                // first item is emitted
+                .throttleLast(100, TimeUnit.MILLISECONDS)
+                // debounce will emit item only 200ms after last item is emitted
+                // (after user types in last character)
+                .debounce(200, TimeUnit.MILLISECONDS)
+                // as network operations can be lengthy, onBackpressureLatest will
+                // ensure that items won’t be emitted faster than a subscriber can
+                // consume (will emit last item as soon as subscriber is able to
+                // consume)
+                .onBackpressureLatest()
+                .subscribeOn(AndroidSchedulers.mainThread()));
         return true;
     }
 

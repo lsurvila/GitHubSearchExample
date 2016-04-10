@@ -1,8 +1,7 @@
 package com.lsurvila.githubsearchexample.data.network;
 
-import com.lsurvila.githubsearchexample.data.network.model.GitHubService;
-
-import okhttp3.Response;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -23,7 +22,7 @@ public class GitHubApi {
         service = retrofit.create(GitHubService.class);
     }
 
-    public Observable<Response> search(String query, int page, int perPage) {
+    public Observable<Response<ResponseBody>> search(String query, int page, int perPage) {
         return service.search(query, page, perPage);
     }
 

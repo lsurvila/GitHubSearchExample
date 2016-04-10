@@ -6,6 +6,8 @@ import com.lsurvila.githubsearchexample.data.network.GitHubApi;
 import com.lsurvila.githubsearchexample.model.GitHubRepo;
 import com.lsurvila.githubsearchexample.model.GitHubRepoViewModel;
 
+import java.util.ArrayList;
+
 import rx.Observable;
 
 public class GitHubDao {
@@ -28,11 +30,11 @@ public class GitHubDao {
     }
 
     public Observable<GitHubRepoViewModel> getAllFavorites() {
-        return null;
+        return Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0));
     }
 
     public Observable<GitHubRepoViewModel> getFavorites(String query) {
-        return null;
+        return Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0));
     }
 
     public void removeFavorite(GitHubRepo gitHubRepo) {

@@ -34,6 +34,17 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
         return gitHubRepoList.size();
     }
 
+    public void setItems(List<GitHubRepo> gitHubRepos) {
+        gitHubRepoList = gitHubRepos;
+        notifyDataSetChanged();
+    }
+
+    public void appendItems(List<GitHubRepo> gitHubRepos) {
+        int currentSize = gitHubRepos.size();
+        gitHubRepoList.addAll(gitHubRepos);
+        notifyItemRangeChanged(currentSize, gitHubRepoList.size());
+    }
+
     static class ViewHolder extends RecyclerView.ViewHolder {
         @Bind(R.id.search_item_name)
         TextView searchItemName;

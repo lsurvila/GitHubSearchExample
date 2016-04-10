@@ -4,8 +4,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.lsurvila.githubsearchexample.AndroidUtils;
+import com.lsurvila.githubsearchexample.data.network.model.Item;
+import com.lsurvila.githubsearchexample.data.network.model.Repositories;
 import com.lsurvila.githubsearchexample.model.GitHubRepo;
 import com.lsurvila.githubsearchexample.model.GitHubRepoViewModel;
 
@@ -13,9 +14,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.Response;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
-class ModelConverter {
+public class ModelConverter {
 
     private final AndroidUtils androidUtils;
     private final Gson gson;
@@ -25,16 +27,26 @@ class ModelConverter {
         this.androidUtils = androidUtils;
     }
 
-    public GitHubRepoViewModel toViewModel(Response response) {
-        String linkHeader = response.header("Link");
+    public GitHubRepoViewModel toViewModel(Response<ResponseBody> response) {
+        String linkHeader = response.headers().get("Link");
         int lastPage = getLastPage(linkHeader);
         List<GitHubRepo> gitHubRepos = new ArrayList<>();
         try {
-            gitHubRepos = gson.fromJson(response.body().string(), new TypeToken<List<GitHubRepo>>(){}.getType());
+            Repositories repositories = gson.fromJson(response.body().string(), Repositories.class);
+            gitHubRepos = toViewModel(gitHubRepos, repositories);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return new GitHubRepoViewModel(gitHubRepos, lastPage);
+    }
+
+    // TODO test
+    private List<GitHubRepo> toViewModel(List<GitHubRepo> gitHubRepos, Repositories repositories) {
+        for (int i = 0; i < repositories.getItems().size(); i++) {
+            Item item  = repositories.getItems().get(i);
+            gitHubRepos.add(new GitHubRepo(item.getId(), item.getName(), item.getUrl()));
+        }
+        return gitHubRepos;
     }
 
     @VisibleForTesting

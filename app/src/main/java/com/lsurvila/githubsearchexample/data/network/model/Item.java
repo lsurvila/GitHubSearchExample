@@ -3,7 +3,7 @@ package com.lsurvila.githubsearchexample.data.network.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-class Item {
+public class Item {
 
     @Expose
     private String id;
