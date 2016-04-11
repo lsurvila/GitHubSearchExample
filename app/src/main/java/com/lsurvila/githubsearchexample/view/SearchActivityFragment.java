@@ -30,7 +30,7 @@ import rx.Observable;
 /**
  * Allows to search GitHub and favorite repositories.
  */
-public class SearchActivityFragment extends Fragment implements GithubSearchView {
+public class SearchActivityFragment extends Fragment implements GitHubSearchView {
 
     @SuppressWarnings("WeakerAccess")
     @Bind(R.id.search_result_list)

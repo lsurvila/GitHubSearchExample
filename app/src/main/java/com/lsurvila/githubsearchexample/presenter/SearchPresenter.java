@@ -8,7 +8,7 @@ import com.lsurvila.githubsearchexample.data.GitHubDao;
 import com.lsurvila.githubsearchexample.model.Paginator;
 import com.lsurvila.githubsearchexample.model.GitHubRepo;
 import com.lsurvila.githubsearchexample.model.GitHubRepoViewModel;
-import com.lsurvila.githubsearchexample.view.GithubSearchView;
+import com.lsurvila.githubsearchexample.view.GitHubSearchView;
 
 import java.util.ArrayList;
 
@@ -16,7 +16,7 @@ import rx.Observable;
 
 public class SearchPresenter {
 
-    private final GithubSearchView githubSearchView;
+    private final GitHubSearchView mGitHubSearchView;
     private final GitHubDao gitHubDao;
     private final AndroidUtils androidUtils;
     private final Paginator paginator;
@@ -24,9 +24,9 @@ public class SearchPresenter {
     private boolean isQueryEmpty = false;
     private String queryString;
 
-    public SearchPresenter(@NonNull GithubSearchView githubSearchView, @NonNull GitHubDao gitHubDao,
+    public SearchPresenter(@NonNull GitHubSearchView gitHubSearchView, @NonNull GitHubDao gitHubDao,
                            @NonNull AndroidUtils androidUtils, @NonNull Paginator paginator) {
-        this.githubSearchView = githubSearchView;
+        this.mGitHubSearchView = gitHubSearchView;
         this.gitHubDao = gitHubDao;
         this.androidUtils = androidUtils;
         this.paginator = paginator;
@@ -41,6 +41,7 @@ public class SearchPresenter {
                 .subscribeOn(androidUtils.getRunningThread())
                 .observeOn(androidUtils.getMainThread())
                 .subscribe(this::handleResult, throwable -> {
+                    // TODO should not happen, as will stop producing queries, implement onErrorNext
                     showError();
                 });
     }
@@ -58,18 +59,18 @@ public class SearchPresenter {
     }
 
     private void showError() {
-        githubSearchView.showMessage(androidUtils.getString(R.string.error_generic));
+        mGitHubSearchView.showMessage(androidUtils.getString(R.string.error_generic));
     }
 
     private void handleResult(GitHubRepoViewModel searchResults) {
         if (isQueryEmpty) {
-                githubSearchView.showResults(searchResults.getGitHubRepos());
+                mGitHubSearchView.showResults(searchResults.getGitHubRepos());
         } else {
             if (searchResults.getGitHubRepos().size() == 0) {
-                githubSearchView.showMessage(androidUtils.getString(R.string.error_not_found, queryString));
+                mGitHubSearchView.showMessage(androidUtils.getString(R.string.error_not_found, queryString));
             } else {
                 paginator.setLastPage(searchResults.getLastPage());
-                githubSearchView.showResults(searchResults.getGitHubRepos());
+                mGitHubSearchView.showResults(searchResults.getGitHubRepos());
             }
         }
     }
@@ -116,6 +117,6 @@ public class SearchPresenter {
     }
 
     public void requestDetails(GitHubRepo gitHubRepo) {
-        githubSearchView.openDetails(gitHubRepo.getUrl());
+        mGitHubSearchView.openDetails(gitHubRepo.getUrl());
     }
 }

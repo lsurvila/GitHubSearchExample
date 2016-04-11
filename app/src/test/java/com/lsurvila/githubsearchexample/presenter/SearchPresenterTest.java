@@ -6,7 +6,7 @@ import com.lsurvila.githubsearchexample.data.GitHubDao;
 import com.lsurvila.githubsearchexample.model.Paginator;
 import com.lsurvila.githubsearchexample.model.GitHubRepo;
 import com.lsurvila.githubsearchexample.model.GitHubRepoViewModel;
-import com.lsurvila.githubsearchexample.view.GithubSearchView;
+import com.lsurvila.githubsearchexample.view.GitHubSearchView;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -36,7 +36,7 @@ public class SearchPresenterTest {
     private SearchPresenter searchPresenter;
 
     @Mock
-    private GithubSearchView githubSearchView;
+    private GitHubSearchView mGitHubSearchView;
 
     @Mock
     private GitHubDao gitHubDao;
@@ -46,7 +46,7 @@ public class SearchPresenterTest {
 
     @Before
     public void setUp() throws Exception {
-        searchPresenter = new SearchPresenter(githubSearchView, gitHubDao, androidUtils, new Paginator());
+        searchPresenter = new SearchPresenter(mGitHubSearchView, gitHubDao, androidUtils, new Paginator());
         when(androidUtils.getMainThread()).thenReturn(Schedulers.immediate());
         when(androidUtils.getRunningThread()).thenReturn(Schedulers.immediate());
     }
@@ -59,7 +59,7 @@ public class SearchPresenterTest {
 
         searchPresenter.search(searchQuery);
 
-        verify(githubSearchView).showResults(result.getGitHubRepos());
+        verify(mGitHubSearchView).showResults(result.getGitHubRepos());
     }
 
     @Test
@@ -71,7 +71,7 @@ public class SearchPresenterTest {
 
         searchPresenter.search(searchQuery);
 
-        verify(githubSearchView).showMessage(genericError);
+        verify(mGitHubSearchView).showMessage(genericError);
     }
 
     @Test
@@ -85,7 +85,7 @@ public class SearchPresenterTest {
 
         searchPresenter.search(searchQuery);
 
-        verify(githubSearchView).showResults(result.getGitHubRepos());
+        verify(mGitHubSearchView).showResults(result.getGitHubRepos());
         assertThat(result.getGitHubRepos().get(0).isFavorite()).isTrue();
         assertThat(result.getGitHubRepos().get(1).isFavorite()).isFalse();
         assertThat(result.getGitHubRepos().get(2).isFavorite()).isFalse();
@@ -102,8 +102,8 @@ public class SearchPresenterTest {
 
         searchPresenter.search(searchQuery);
 
-        verify(githubSearchView).showResults(result.getGitHubRepos());
-        verify(githubSearchView, never()).showMessage(anyString());
+        verify(mGitHubSearchView).showResults(result.getGitHubRepos());
+        verify(mGitHubSearchView, never()).showMessage(anyString());
     }
 
     @Test
@@ -116,8 +116,8 @@ public class SearchPresenterTest {
 
         searchPresenter.search(searchQuery);
 
-        verify(githubSearchView).showResults(result.getGitHubRepos());
-        verify(githubSearchView, never()).showMessage(anyString());
+        verify(mGitHubSearchView).showResults(result.getGitHubRepos());
+        verify(mGitHubSearchView, never()).showMessage(anyString());
     }
 
     @Test
@@ -132,8 +132,8 @@ public class SearchPresenterTest {
 
         searchPresenter.search(searchQuery);
 
-        verify(githubSearchView).showResults(result.getGitHubRepos());
-        verify(githubSearchView).showMessage(genericError);
+        verify(mGitHubSearchView).showResults(result.getGitHubRepos());
+        verify(mGitHubSearchView).showMessage(genericError);
     }
 
     @Test
@@ -147,8 +147,8 @@ public class SearchPresenterTest {
 
         searchPresenter.search(searchQuery);
 
-        verify(githubSearchView, never()).showResults(anyListOf(GitHubRepo.class));
-        verify(githubSearchView).showMessage(genericError);
+        verify(mGitHubSearchView, never()).showResults(anyListOf(GitHubRepo.class));
+        verify(mGitHubSearchView).showMessage(genericError);
     }
 
     @Test
@@ -162,8 +162,8 @@ public class SearchPresenterTest {
 
         searchPresenter.search(searchQuery);
 
-        verify(githubSearchView, never()).showResults(anyListOf(GitHubRepo.class));
-        verify(githubSearchView).showMessage(genericError);
+        verify(mGitHubSearchView, never()).showResults(anyListOf(GitHubRepo.class));
+        verify(mGitHubSearchView).showMessage(genericError);
     }
 
     @Test // rare case, when repository is removed, but was made favorite by user before, we still show them
@@ -176,8 +176,8 @@ public class SearchPresenterTest {
 
         searchPresenter.search(searchQuery);
 
-        verify(githubSearchView, never()).showMessage(anyString());
-        verify(githubSearchView).showResults(favorites.getGitHubRepos());
+        verify(mGitHubSearchView, never()).showMessage(anyString());
+        verify(mGitHubSearchView).showResults(favorites.getGitHubRepos());
     }
 
     @Test
@@ -191,8 +191,8 @@ public class SearchPresenterTest {
 
         searchPresenter.search(searchQuery);
 
-        verify(githubSearchView).showMessage(notFoundError);
-        verify(githubSearchView, never()).showResults(anyListOf(GitHubRepo.class));
+        verify(mGitHubSearchView).showMessage(notFoundError);
+        verify(mGitHubSearchView, never()).showResults(anyListOf(GitHubRepo.class));
     }
 
     @Test
@@ -206,8 +206,8 @@ public class SearchPresenterTest {
 
         searchPresenter.search(searchQuery);
 
-        verify(githubSearchView).showMessage(notFoundError);
-        verify(githubSearchView, never()).showResults(anyListOf(GitHubRepo.class));
+        verify(mGitHubSearchView).showMessage(notFoundError);
+        verify(mGitHubSearchView, never()).showResults(anyListOf(GitHubRepo.class));
     }
 
 
@@ -241,7 +241,7 @@ public class SearchPresenterTest {
 //        searchPresenter.search(query);
 //        searchPresenter.searchNext(query);
 
-        verify(githubSearchView).appendResults(result.getGitHubRepos());
+        verify(mGitHubSearchView).appendResults(result.getGitHubRepos());
     }
 
     @Test @Ignore // TODO
@@ -254,7 +254,7 @@ public class SearchPresenterTest {
 //        searchPresenter.search(query);
 //        searchPresenter.searchNext(query);
 
-        verify(githubSearchView, never()).appendResults(result.getGitHubRepos());
+        verify(mGitHubSearchView, never()).appendResults(result.getGitHubRepos());
     }
 
     @Test
@@ -263,7 +263,7 @@ public class SearchPresenterTest {
 
         searchPresenter.requestDetails(gitHubRepo);
 
-        verify(githubSearchView).openDetails(gitHubRepo.getUrl());
+        verify(mGitHubSearchView).openDetails(gitHubRepo.getUrl());
     }
 
     private GitHubRepoViewModel mockResult() {

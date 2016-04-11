@@ -4,7 +4,7 @@ import com.lsurvila.githubsearchexample.model.GitHubRepo;
 
 import java.util.List;
 
-public interface GithubSearchView {
+public interface GitHubSearchView {
 
     void showResults(List<GitHubRepo> gitHubRepos);
     void appendResults(List<GitHubRepo> gitHubRepos);

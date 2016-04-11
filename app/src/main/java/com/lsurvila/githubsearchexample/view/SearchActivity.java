@@ -22,9 +22,16 @@ public class SearchActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+        setupActionBar();
+        fragment = (SearchActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
+    }
+
+    private void setupActionBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        fragment = (SearchActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
     }
 
     @Override
