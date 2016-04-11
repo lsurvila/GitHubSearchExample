@@ -38,4 +38,8 @@ public class Paginator {
         lastPage = 0;
     }
 
+    public int resetAndGetNextPage() {
+        reset();
+        return getNextPage();
+    }
 }

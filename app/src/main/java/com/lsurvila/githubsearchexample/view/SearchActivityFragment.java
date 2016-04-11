@@ -39,8 +39,39 @@ public class SearchActivityFragment extends Fragment implements GitHubSearchView
     @Bind(R.id.search_root_view)
     CoordinatorLayout searchRootView;
 
+    private int previousTotal = 0; // The total number of items in the dataset after the last load
+    private boolean loading = true; // True if we are still waiting for the last set of data to load.
+    private int visibleThreshold = 20; // The minimum amount of items to have below your current scroll position before loading more.
+    int firstVisibleItem, visibleItemCount, totalItemCount;
+
     private SearchPresenter presenter;
     private SearchResultAdapter adapter;
+    private final RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+            visibleItemCount = recyclerView.getChildCount();
+            totalItemCount = layoutManager.getItemCount();
+            firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
+
+            if (loading) {
+                if (totalItemCount > previousTotal) {
+                    loading = false;
+                    previousTotal = totalItemCount;
+                }
+            }
+            if (!loading && (totalItemCount - visibleItemCount)
+                    <= (firstVisibleItem + visibleThreshold)) {
+                // End has been reached
+
+                // Do something
+                presenter.searchMore();
+
+                loading = true;
+            }
+        }
+    };
+    private LinearLayoutManager layoutManager;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,8 +100,10 @@ public class SearchActivityFragment extends Fragment implements GitHubSearchView
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
         ButterKnife.bind(this, view);
-        searchResultList.setLayoutManager(new LinearLayoutManager(getContext()));
+        layoutManager = new LinearLayoutManager(getContext());
+        searchResultList.setLayoutManager(layoutManager);
         searchResultList.setAdapter(adapter);
+        searchResultList.addOnScrollListener(onScrollListener);
         return view;
     }
 
@@ -100,8 +133,9 @@ public class SearchActivityFragment extends Fragment implements GitHubSearchView
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
+        searchResultList.removeOnScrollListener(onScrollListener);
         ButterKnife.unbind(this);
+        super.onDestroyView();
     }
 
 }

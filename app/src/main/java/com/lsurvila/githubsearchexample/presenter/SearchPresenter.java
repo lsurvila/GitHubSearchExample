@@ -33,11 +33,20 @@ public class SearchPresenter {
     }
 
     // TODO pagination
+    // TODO unsubscribe on destroy
     public void search(Observable<CharSequence> queryChanges) {
+        searchInPage(queryChanges, paginator.resetAndGetNextPage());
+    }
+
+    public void searchMore() {
+        searchInPage(Observable.just(queryString), paginator.getNextPage());
+    }
+
+    private void searchInPage(Observable<CharSequence> queryChanges, int page) {
         queryChanges.map(CharSequence::toString)
                 // concatMap ensures ordering of observables (flatMap does not
                 // care about order)
-                .concatMap(this::performSearch)
+                .concatMap(queryString -> performSearch(queryString, page))
                 .subscribeOn(androidUtils.getRunningThread())
                 .observeOn(androidUtils.getMainThread())
                 .subscribe(this::handleResult, throwable -> {
@@ -46,11 +55,9 @@ public class SearchPresenter {
                 });
     }
 
-    private Observable<GitHubRepoViewModel> performSearch(String query) {
-        paginator.reset();
+    private Observable<GitHubRepoViewModel> performSearch(String query, int page) {
         queryString = query;
         isQueryEmpty = AndroidUtils.isEmpty(query);
-        int page = Paginator.FIRST_PAGE;
         if (isQueryEmpty) {
             return gitHubDao.getAllFavorites();
         } else {
@@ -70,7 +77,11 @@ public class SearchPresenter {
                 mGitHubSearchView.showMessage(androidUtils.getString(R.string.error_not_found, queryString));
             } else {
                 paginator.setLastPage(searchResults.getLastPage());
-                mGitHubSearchView.showResults(searchResults.getGitHubRepos());
+                if (paginator.isFirstPage()) {
+                    mGitHubSearchView.showResults(searchResults.getGitHubRepos());
+                } else {
+                    mGitHubSearchView.appendResults(searchResults.getGitHubRepos());
+                }
             }
         }
     }
