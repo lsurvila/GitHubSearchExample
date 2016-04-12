@@ -1,5 +1,6 @@
 package com.lsurvila.githubsearchexample.view;
 
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
@@ -16,6 +17,8 @@ import com.lsurvila.githubsearchexample.AndroidUtils;
 import com.lsurvila.githubsearchexample.R;
 import com.lsurvila.githubsearchexample.data.GitHubDao;
 import com.lsurvila.githubsearchexample.data.ModelConverter;
+import com.lsurvila.githubsearchexample.data.db.FavoritesDbHelper;
+import com.lsurvila.githubsearchexample.data.db.GitHubDb;
 import com.lsurvila.githubsearchexample.data.network.GitHubApi;
 import com.lsurvila.githubsearchexample.model.GitHubRepo;
 import com.lsurvila.githubsearchexample.model.Paginator;
@@ -41,8 +44,10 @@ public class SearchActivityFragment extends Fragment implements GitHubSearchView
 
     private int previousTotal = 0; // The total number of items in the data set after the last load
     private boolean loading = true; // True if we are still waiting for the last set of data to load.
-    private int visibleThreshold = 20; // The minimum amount of items to have below your current scroll position before loading more.
-    int firstVisibleItem, visibleItemCount, totalItemCount;
+    private final int visibleThreshold = 20; // The minimum amount of items to have below your current scroll position before loading more.
+    private int firstVisibleItem;
+    private int visibleItemCount;
+    private int totalItemCount;
 
     private SearchPresenter presenter;
     private SearchResultAdapter adapter;
@@ -90,7 +95,9 @@ public class SearchActivityFragment extends Fragment implements GitHubSearchView
         Gson gson = new Gson();
         ModelConverter modelConverter = new ModelConverter(gson, androidUtils);
         GitHubApi gitHubApi = new GitHubApi();
-        GitHubDao gitHubDao = new GitHubDao(gitHubApi, modelConverter);
+        SQLiteOpenHelper favoritesDbHelper = new FavoritesDbHelper(getContext());
+        GitHubDb db = new GitHubDb(favoritesDbHelper);
+        GitHubDao gitHubDao = new GitHubDao(gitHubApi, db, modelConverter);
         presenter = new SearchPresenter(this, gitHubDao, androidUtils, paginator);
         adapter = new SearchResultAdapter();
     }

@@ -2,6 +2,7 @@ package com.lsurvila.githubsearchexample.data;
 
 import android.support.annotation.NonNull;
 
+import com.lsurvila.githubsearchexample.data.db.GitHubDb;
 import com.lsurvila.githubsearchexample.data.network.GitHubApi;
 import com.lsurvila.githubsearchexample.model.GitHubRepo;
 import com.lsurvila.githubsearchexample.model.GitHubRepoViewModel;
@@ -14,10 +15,12 @@ import rx.schedulers.Schedulers;
 public class GitHubDao {
 
     private final GitHubApi api;
+    private final GitHubDb db;
     private final ModelConverter modelConverter;
 
-    public GitHubDao(@NonNull GitHubApi api, @NonNull ModelConverter modelConverter) {
+    public GitHubDao(@NonNull GitHubApi api, @NonNull GitHubDb db, @NonNull ModelConverter modelConverter) {
         this.api = api;
+        this.db = db;
         this.modelConverter = modelConverter;
     }
 
