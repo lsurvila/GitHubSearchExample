@@ -40,6 +40,7 @@ public class SearchPresenter {
     // add database layer
     // add favorite
     // remove favorite
+    // test to convert network model
 
     // TODO Nice to have
     // fix pagination for network requests

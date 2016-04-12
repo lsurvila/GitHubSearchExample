@@ -39,7 +39,7 @@ public class SearchActivityFragment extends Fragment implements GitHubSearchView
     @Bind(R.id.search_root_view)
     CoordinatorLayout searchRootView;
 
-    private int previousTotal = 0; // The total number of items in the dataset after the last load
+    private int previousTotal = 0; // The total number of items in the data set after the last load
     private boolean loading = true; // True if we are still waiting for the last set of data to load.
     private int visibleThreshold = 20; // The minimum amount of items to have below your current scroll position before loading more.
     int firstVisibleItem, visibleItemCount, totalItemCount;
@@ -64,8 +64,8 @@ public class SearchActivityFragment extends Fragment implements GitHubSearchView
                     <= (firstVisibleItem + visibleThreshold)) {
                 // End has been reached
 
-                // Do something
-                presenter.searchMore();
+                // TODO enable and fix later
+                // presenter.searchMore();
 
                 loading = true;
             }

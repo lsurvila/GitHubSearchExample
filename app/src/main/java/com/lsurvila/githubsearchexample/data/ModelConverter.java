@@ -40,7 +40,6 @@ public class ModelConverter {
         return new GitHubRepoViewModel(gitHubRepos, lastPage);
     }
 
-    // TODO test
     private List<GitHubRepo> toViewModel(List<GitHubRepo> gitHubRepos, Repositories repositories) {
         for (int i = 0; i < repositories.getItems().size(); i++) {
             Item item  = repositories.getItems().get(i);

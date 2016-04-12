@@ -71,6 +71,7 @@ public class PaginatorTest {
 
         assertThat(page).isEqualTo(2);
 
+
         paginator.reset();
         page = paginator.getNextPage();
 
