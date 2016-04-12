@@ -15,7 +15,6 @@
         android:padding="@dimen/padding_large"
         tools:text="okhttp"/>
 
-    <!-- TODO add animation for vector drawable -->
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

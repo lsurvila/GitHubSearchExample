@@ -32,8 +32,23 @@ public class SearchPresenter {
         this.paginator = paginator;
     }
 
-    // TODO pagination
-    // TODO unsubscribe on destroy
+    // TODO Stability
+    // disable pagination (temp)
+    // review error handling (not found vs other errors, also onError of subscribe should not be executed)
+
+    // TODO Features
+    // add database layer
+    // add favorite
+    // remove favorite
+
+    // TODO Nice to have
+    // fix pagination for network requests
+    // ui (espresso) tests
+    // keep results on configuration change
+    // progress dialogs
+    // add animation for vector drawable
+    // add pagination for db items
+
     public void search(Observable<CharSequence> queryChanges) {
         searchInPage(queryChanges, paginator.resetAndGetNextPage());
     }
@@ -50,7 +65,7 @@ public class SearchPresenter {
                 .subscribeOn(androidUtils.getRunningThread())
                 .observeOn(androidUtils.getMainThread())
                 .subscribe(this::handleResult, throwable -> {
-                    // TODO should not happen, as will stop producing queries, implement onErrorNext
+                    // TODO
                     showError();
                 });
     }

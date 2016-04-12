@@ -1,7 +1,6 @@
 package com.lsurvila.githubsearchexample.view;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -9,12 +8,15 @@ import android.view.MenuItem;
 
 import com.jakewharton.rxbinding.support.v7.widget.RxSearchView;
 import com.lsurvila.githubsearchexample.R;
+import com.trello.rxlifecycle.ActivityEvent;
+import com.trello.rxlifecycle.RxLifecycle;
+import com.trello.rxlifecycle.components.support.RxAppCompatActivity;
 
 import java.util.concurrent.TimeUnit;
 
 import rx.android.schedulers.AndroidSchedulers;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends RxAppCompatActivity {
 
     private SearchActivityFragment fragment;
 
@@ -54,7 +56,8 @@ public class SearchActivity extends AppCompatActivity {
                 // consume (will emit last item as soon as subscriber is able to
                 // consume)
                 .onBackpressureLatest()
-                .subscribeOn(AndroidSchedulers.mainThread()));
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .compose(RxLifecycle.bindUntilEvent(lifecycle(), ActivityEvent.DESTROY)));
         return true;
     }
 
