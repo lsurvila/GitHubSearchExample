@@ -11,7 +11,6 @@ import com.lsurvila.githubsearchexample.model.GitHubRepo;
 import com.lsurvila.githubsearchexample.model.GitHubRepoViewModel;
 import com.lsurvila.githubsearchexample.view.GitHubSearchView;
 
-import java.io.InterruptedIOException;
 import java.util.ArrayList;
 
 import rx.Observable;
@@ -36,15 +35,11 @@ public class SearchPresenter {
         this.paginator = paginator;
     }
 
-    // TODO Critical
-    // review error handling (not found vs other errors, also onError of subscribe should not be executed)
-
     // TODO Should have
     // add database layer
     // add favorite
     // remove favorite
     // test to convert network model
-    // find out why thread interrupted error happens
 
     // TODO Nice to have
     // fix pagination for network requests
@@ -114,20 +109,10 @@ public class SearchPresenter {
     private Observable<GitHubRepoViewModel> searchApi(String query, int page) {
         return gitHubDao.search(query, page, paginator.getPerPage())
                 .onErrorResumeNext(throwable -> {
-                    // TODO find out why it happens, filtering empty queries seems to fixes it, but
-                    // TODO we would still like observable to execute for showing all favorites
-                    // thread interrupted sometimes happens especially when removing all query fast,
-                    // but this error does not affect UX, so for now just do not show error
-                    if (!isThreadInterruptedException(throwable)) {
-                        showError();
-                    }
                     Log.e(TAG, "Error while searching api with query=" + query, throwable);
+                    showError();
                     return getEmptyData();
                 });
-    }
-
-    private boolean isThreadInterruptedException(Throwable throwable) {
-        return throwable instanceof InterruptedIOException && throwable.getLocalizedMessage().equals("thread interrupted");
     }
 
     private Observable<GitHubRepoViewModel> searchDb(String query) {

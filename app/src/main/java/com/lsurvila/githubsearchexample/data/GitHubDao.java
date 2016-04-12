@@ -9,6 +9,7 @@ import com.lsurvila.githubsearchexample.model.GitHubRepoViewModel;
 import java.util.ArrayList;
 
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 public class GitHubDao {
 
@@ -22,7 +23,8 @@ public class GitHubDao {
 
     public Observable<GitHubRepoViewModel> search(String searchQuery, int pageNumber, int perPage) {
         return api.search(searchQuery, pageNumber, perPage)
-                .map(modelConverter::toViewModel);
+                .map(modelConverter::toViewModel)
+                .subscribeOn(Schedulers.io());
     }
 
     public void saveFavorite(GitHubRepo gitHubRepo) {
