@@ -116,7 +116,7 @@ public class SearchPresenter {
                 .onErrorResumeNext(throwable -> {
                     // TODO find out why it happens, filtering empty queries seems to fixes it, but
                     // TODO we would still like observable to execute for showing all favorites
-                    // thread interrupted sometimes happens (especially when removing all query fast,
+                    // thread interrupted sometimes happens especially when removing all query fast,
                     // but this error does not affect UX, so for now just do not show error
                     if (!isThreadInterruptedException(throwable)) {
                         showError();
@@ -132,7 +132,7 @@ public class SearchPresenter {
 
     private Observable<GitHubRepoViewModel> searchDb(String query) {
         return gitHubDao.getFavorites(query).onErrorResumeNext(throwable -> {
-            Log.e(TAG, "Error wile searching db with query=" + query, throwable);
+            Log.e(TAG, "Error while searching db with query=" + query, throwable);
             return getEmptyData();
         });
     }

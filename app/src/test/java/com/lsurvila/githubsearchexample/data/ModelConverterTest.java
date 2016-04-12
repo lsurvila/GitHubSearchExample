@@ -52,4 +52,17 @@ public class ModelConverterTest {
         assertThat(lastPage).isEqualTo(50);
     }
 
+    @Test
+    public void shouldExtract1_headerIsNull() throws Exception {
+        int lastPage = modelConverter.getLastPage(null);
+
+        assertThat(lastPage).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldExtract1_headerIsEmpty() throws Exception {
+        int lastPage = modelConverter.getLastPage("");
+
+        assertThat(lastPage).isEqualTo(1);
+    }
 }

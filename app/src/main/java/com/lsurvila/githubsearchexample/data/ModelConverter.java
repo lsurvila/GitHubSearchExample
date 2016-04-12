@@ -50,7 +50,11 @@ public class ModelConverter {
 
     @VisibleForTesting
     int getLastPage(String linkHeader) {
-        return Integer.parseInt(androidUtils.getQueryFromUrl(getLastPageUrl(linkHeader), "page"));
+        if (!AndroidUtils.isEmpty(linkHeader)) {
+            return Integer.parseInt(androidUtils.getQueryFromUrl(getLastPageUrl(linkHeader), "page"));
+        } else {
+            return 1;
+        }
     }
 
     @VisibleForTesting
