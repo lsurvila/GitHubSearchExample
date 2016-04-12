@@ -48,15 +48,16 @@ public class SearchActivity extends RxAppCompatActivity {
                 // throttleLast will emit last item during 100ms from the time
                 // first item is emitted
                 .throttleLast(100, TimeUnit.MILLISECONDS)
-                // debounce will emit item only 200ms after last item is emitted
+                // debounce will emit item only 300ms after last item is emitted
                 // (after user types in last character)
-                .debounce(200, TimeUnit.MILLISECONDS)
+                .debounce(300, TimeUnit.MILLISECONDS)
                 // as network operations can be lengthy, onBackpressureLatest will
                 // ensure that items won’t be emitted faster than a subscriber can
                 // consume (will emit last item as soon as subscriber is able to
                 // consume)
                 .onBackpressureLatest()
                 .subscribeOn(AndroidSchedulers.mainThread())
+                // will stop when Activity is destroyed
                 .compose(RxLifecycle.bindUntilEvent(lifecycle(), ActivityEvent.DESTROY)));
         return true;
     }
