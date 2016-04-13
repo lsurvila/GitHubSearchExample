@@ -16,6 +16,7 @@
         tools:text="okhttp"/>
 
     <ImageView
+        android:id="@+id/search_item_favorite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"

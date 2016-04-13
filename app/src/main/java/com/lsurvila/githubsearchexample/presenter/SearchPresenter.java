@@ -43,6 +43,7 @@ public class SearchPresenter {
 
     // TODO Nice to have
     // fix pagination for network requests
+    // open details in webview activity
     // ui (espresso) tests
     // keep results on configuration change
     // progress dialogs

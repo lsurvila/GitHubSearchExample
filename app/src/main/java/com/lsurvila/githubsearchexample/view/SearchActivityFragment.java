@@ -35,19 +35,14 @@ import rx.Observable;
  */
 public class SearchActivityFragment extends Fragment implements GitHubSearchView {
 
-    @SuppressWarnings("WeakerAccess")
     @Bind(R.id.search_result_list)
     RecyclerView searchResultList;
-    @SuppressWarnings("WeakerAccess")
+
     @Bind(R.id.search_root_view)
     CoordinatorLayout searchRootView;
 
     private int previousTotal = 0; // The total number of items in the data set after the last load
     private boolean loading = true; // True if we are still waiting for the last set of data to load.
-    private final int visibleThreshold = 20; // The minimum amount of items to have below your current scroll position before loading more.
-    private int firstVisibleItem;
-    private int visibleItemCount;
-    private int totalItemCount;
 
     private SearchPresenter presenter;
     private SearchResultAdapter adapter;
@@ -55,9 +50,9 @@ public class SearchActivityFragment extends Fragment implements GitHubSearchView
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
-            visibleItemCount = recyclerView.getChildCount();
-            totalItemCount = layoutManager.getItemCount();
-            firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
+            final int visibleItemCount = recyclerView.getChildCount();
+            final int totalItemCount = layoutManager.getItemCount();
+            final int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
 
             if (loading) {
                 if (totalItemCount > previousTotal) {
@@ -65,6 +60,7 @@ public class SearchActivityFragment extends Fragment implements GitHubSearchView
                     previousTotal = totalItemCount;
                 }
             }
+            final int visibleThreshold = 20;
             if (!loading && (totalItemCount - visibleItemCount)
                     <= (firstVisibleItem + visibleThreshold)) {
                 // End has been reached
@@ -100,6 +96,7 @@ public class SearchActivityFragment extends Fragment implements GitHubSearchView
         GitHubDao gitHubDao = new GitHubDao(gitHubApi, db, modelConverter);
         presenter = new SearchPresenter(this, gitHubDao, androidUtils, paginator);
         adapter = new SearchResultAdapter();
+        adapter.setOnItemClickListener((parent, view, position, id) -> showMessage(adapter.getItem(position).getRepositoryName()));
     }
 
     @Override
