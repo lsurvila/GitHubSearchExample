@@ -3,7 +3,7 @@ package com.lsurvila.githubsearchexample.model;
 public class Paginator {
 
     private static final int DEFAULT_PER_PAGE = 100;
-    public static final int FIRST_PAGE = 1;
+    private static final int FIRST_PAGE = 1;
     private static final int INVALID_PAGE = -1;
 
     private int currentPage;

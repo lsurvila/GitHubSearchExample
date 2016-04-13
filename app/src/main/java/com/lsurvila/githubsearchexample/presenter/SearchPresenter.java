@@ -35,24 +35,6 @@ public class SearchPresenter {
         this.paginator = paginator;
     }
 
-    // TODO Critical
-    // after getting all favorites executed whole subscription will stop, investigate
-
-    // TODO Should have
-    // add database layer
-    // add favorite
-    // remove favorite
-    // test to convert network model
-
-    // TODO Nice to have
-    // fix pagination for network requests
-    // open details in webview activity
-    // ui (espresso) tests
-    // keep results on configuration change
-    // progress dialogs
-    // add animation for vector drawable
-    // add pagination for db items
-
     public void search(Observable<CharSequence> queryChanges) {
         searchInPage(queryChanges, paginator.resetAndGetNextPage());
     }
@@ -83,9 +65,9 @@ public class SearchPresenter {
         queryString = query;
         isQueryEmpty = AndroidUtils.isEmpty(query);
         if (isQueryEmpty) {
-            return gitHubDao.getAllFavorites();
+            return searchDb();
         } else {
-            return Observable.zip(searchApi(query, page), searchDb(query), this::getMergedData);
+            return Observable.zip(searchApi(query, page), searchDb(), this::getMergedData);
         }
     }
 
@@ -119,9 +101,10 @@ public class SearchPresenter {
                 });
     }
 
-    private Observable<GitHubRepoViewModel> searchDb(String query) {
-        return gitHubDao.getFavorites(query).onErrorResumeNext(throwable -> {
-            Log.e(TAG, "Error while searching db with query=" + query, throwable);
+    private Observable<GitHubRepoViewModel> searchDb() {
+        return gitHubDao.getAllFavorites().onErrorResumeNext(throwable -> {
+            Log.e(TAG, "Error while querying db", throwable);
+            showError();
             return getEmptyData();
         });
     }
@@ -145,14 +128,26 @@ public class SearchPresenter {
         return Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0));
     }
 
-    public void saveFavorite(GitHubRepo gitHubRepo) {
-        gitHubRepo.setFavorite(true);
-        gitHubDao.saveFavorite(gitHubRepo);
+    public void saveFavorite(GitHubRepo gitHubRepo, int position) {
+        gitHubDao.saveFavorite(gitHubRepo)
+            .subscribeOn(androidUtils.getRunningThread())
+            .observeOn(androidUtils.getMainThread())
+            .subscribe(success -> {
+                if (success) {
+                    gitHubRepo.setFavorite(true);
+                    gitHubSearchView.invalidateView(position);
+                }
+            }, Throwable::printStackTrace);
     }
 
-    public void removeFavorite(GitHubRepo gitHubRepo) {
-        gitHubRepo.setFavorite(false);
-        gitHubDao.removeFavorite(gitHubRepo);
+    public void removeFavorite(GitHubRepo gitHubRepo, int position) {
+        gitHubDao.removeFavorite(gitHubRepo)
+                .subscribeOn(androidUtils.getRunningThread())
+                .observeOn(androidUtils.getMainThread())
+                .subscribe(success -> {
+                    gitHubRepo.setFavorite(false);
+                    gitHubSearchView.invalidateView(position);
+                }, Throwable::printStackTrace);
     }
 
     public void requestDetails(GitHubRepo gitHubRepo) {

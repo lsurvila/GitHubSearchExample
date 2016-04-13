@@ -7,8 +7,6 @@ import com.lsurvila.githubsearchexample.data.network.GitHubApi;
 import com.lsurvila.githubsearchexample.model.GitHubRepo;
 import com.lsurvila.githubsearchexample.model.GitHubRepoViewModel;
 
-import java.util.ArrayList;
-
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
@@ -30,8 +28,8 @@ public class GitHubDao {
                 .subscribeOn(Schedulers.io());
     }
 
-    public void saveFavorite(GitHubRepo gitHubRepo) {
-        db.insert(modelConverter.toContentValues(gitHubRepo));
+    public Observable<Boolean> saveFavorite(GitHubRepo gitHubRepo) {
+        return db.insert(modelConverter.toContentValues(gitHubRepo));
     }
 
     public Observable<GitHubRepoViewModel> getAllFavorites() {
@@ -39,12 +37,8 @@ public class GitHubDao {
                 .map(modelConverter::toViewModel);
     }
 
-    public Observable<GitHubRepoViewModel> getFavorites(String query) {
-        return Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0));
-    }
-
-    public void removeFavorite(GitHubRepo gitHubRepo) {
-
+    public Observable<Boolean> removeFavorite(GitHubRepo gitHubRepo) {
+        return db.delete(gitHubRepo.getId());
     }
 
 }

@@ -34,7 +34,9 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.searchItemName.setText(gitHubRepoList.get(position).getRepositoryName());
+        GitHubRepo gitHubRepo = getItem(position);
+        holder.searchItemName.setText(gitHubRepo.getRepositoryName());
+        holder.searchItemFavorite.setImageResource(gitHubRepo.isFavorite() ? R.drawable.ic_favorite_black_24px : R.drawable.ic_favorite_border_black_24px);
     }
 
     @Override

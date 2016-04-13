@@ -16,6 +16,18 @@ import java.util.concurrent.TimeUnit;
 
 import rx.android.schedulers.AndroidSchedulers;
 
+// TODO Nice to have
+// unsubscribe sql insert/delete observables on destroy
+// increase test coverage
+// fix pagination for network requests, also unsubscribe on destroy
+// open details in webview activity
+// ui (espresso) tests
+// sqlbrite implementation
+// keep results on configuration change
+// progress dialogs
+// add pagination for db items
+// hide toolbar while scrolling
+
 public class SearchActivity extends RxAppCompatActivity {
 
     private SearchActivityFragment fragment;

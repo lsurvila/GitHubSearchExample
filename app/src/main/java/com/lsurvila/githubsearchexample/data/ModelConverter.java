@@ -92,7 +92,9 @@ public class ModelConverter {
         String id = getStringFromCursor(cursor, FavoriteEntry.COLUMN_ID);
         String name = getStringFromCursor(cursor, FavoriteEntry.COLUMN_TITLE);
         String url = getStringFromCursor(cursor, FavoriteEntry.COLUMN_URL);
-        return new GitHubRepo(id, name, url);
+        GitHubRepo gitHubRepo = new GitHubRepo(id, name, url);
+        gitHubRepo.setFavorite(true);
+        return gitHubRepo;
     }
 
     private String getStringFromCursor(Cursor cursor, String columnName) {

@@ -10,5 +10,6 @@ public interface GitHubSearchView {
     void appendResults(List<GitHubRepo> gitHubRepos);
     void showMessage(String errorMessage);
     void openDetails(String url);
+    void invalidateView(int position);
 
 }

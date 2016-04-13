@@ -66,7 +66,7 @@ public class SearchActivityFragment extends Fragment implements GitHubSearchView
                 // End has been reached
 
                 // TODO enable and fix later
-                // presenter.searchMore();
+                //presenter.searchMore();
 
                 loading = true;
             }
@@ -97,8 +97,12 @@ public class SearchActivityFragment extends Fragment implements GitHubSearchView
         presenter = new SearchPresenter(this, gitHubDao, androidUtils, paginator);
         adapter = new SearchResultAdapter();
         adapter.setOnItemClickListener((parent, view, position, id) -> {
-            showMessage(adapter.getItem(position).getRepositoryName());
-            presenter.saveFavorite(adapter.getItem(position));
+            GitHubRepo gitHubRepo = adapter.getItem(position);
+            if (gitHubRepo.isFavorite()) {
+                presenter.removeFavorite(gitHubRepo, position);
+            } else {
+                presenter.saveFavorite(gitHubRepo, position);
+            }
         });
     }
 
@@ -126,6 +130,11 @@ public class SearchActivityFragment extends Fragment implements GitHubSearchView
     @Override
     public void appendResults(List<GitHubRepo> gitHubRepos) {
         adapter.appendItems(gitHubRepos);
+    }
+
+    @Override
+    public void invalidateView(int position) {
+        adapter.notifyItemChanged(position);
     }
 
     @Override

@@ -27,6 +27,7 @@ import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -81,7 +82,7 @@ public class SearchPresenterTest {
         GitHubRepoViewModel result = mockResult();
         GitHubRepoViewModel favorites = mockFavoriteResult();
         when(gitHubDao.search(eq(stringQuery), eq(1), anyInt())).thenReturn(Observable.just(result));
-        when(gitHubDao.getFavorites(stringQuery)).thenReturn(Observable.just(favorites));
+        when(gitHubDao.getAllFavorites()).thenReturn(Observable.just(favorites));
 
         searchPresenter.search(searchQuery);
 
@@ -98,7 +99,7 @@ public class SearchPresenterTest {
         Observable<CharSequence> searchQuery = Observable.just(stringQuery);
         GitHubRepoViewModel result = mockResult();
         when(gitHubDao.search(eq(stringQuery), eq(1), anyInt())).thenReturn(Observable.just(result));
-        when(gitHubDao.getFavorites(stringQuery)).thenReturn(Observable.error(new Throwable("Error")));
+        when(gitHubDao.getAllFavorites()).thenReturn(Observable.error(new Throwable("Error")));
 
         searchPresenter.search(searchQuery);
 
@@ -112,7 +113,7 @@ public class SearchPresenterTest {
         Observable<CharSequence> searchQuery = Observable.just(stringQuery);
         GitHubRepoViewModel result = mockResult();
         when(gitHubDao.search(eq(stringQuery), eq(1), anyInt())).thenReturn(Observable.just(result));
-        when(gitHubDao.getFavorites(stringQuery)).thenReturn(Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0)));
+        when(gitHubDao.getAllFavorites()).thenReturn(Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0)));
 
         searchPresenter.search(searchQuery);
 
@@ -127,7 +128,7 @@ public class SearchPresenterTest {
         GitHubRepoViewModel result = mockFavoriteResult();
         String genericError = "genericError";
         when(gitHubDao.search(eq(stringQuery), eq(1), anyInt())).thenReturn(Observable.error(new Throwable("Error.")));
-        when(gitHubDao.getFavorites(stringQuery)).thenReturn(Observable.just(result));
+        when(gitHubDao.getAllFavorites()).thenReturn(Observable.just(result));
         when(androidUtils.getString(R.string.error_generic)).thenReturn(genericError);
 
         searchPresenter.search(searchQuery);
@@ -142,13 +143,14 @@ public class SearchPresenterTest {
         Observable<CharSequence> searchQuery = Observable.just(stringQuery);
         String genericError = "genericError";
         when(gitHubDao.search(eq(stringQuery), eq(1), anyInt())).thenReturn(Observable.error(new Throwable("Error.")));
-        when(gitHubDao.getFavorites(stringQuery)).thenReturn(Observable.error(new Throwable("Error.")));
+        when(gitHubDao.getAllFavorites()).thenReturn(Observable.error(new Throwable("Error.")));
         when(androidUtils.getString(R.string.error_generic)).thenReturn(genericError);
 
         searchPresenter.search(searchQuery);
 
         verify(mGitHubSearchView, never()).showResults(anyListOf(GitHubRepo.class));
-        verify(mGitHubSearchView).showMessage(genericError);
+        // TODO make it show once
+        verify(mGitHubSearchView, times(2)).showMessage(genericError);
     }
 
     @Test
@@ -157,7 +159,7 @@ public class SearchPresenterTest {
         Observable<CharSequence> searchQuery = Observable.just(stringQuery);
         String genericError = "genericError";
         when(gitHubDao.search(eq(stringQuery), eq(1), anyInt())).thenReturn(Observable.error(new Throwable("Error.")));
-        when(gitHubDao.getFavorites(stringQuery)).thenReturn(Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0)));
+        when(gitHubDao.getAllFavorites()).thenReturn(Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0)));
         when(androidUtils.getString(R.string.error_generic)).thenReturn(genericError);
 
         searchPresenter.search(searchQuery);
@@ -172,7 +174,7 @@ public class SearchPresenterTest {
         Observable<CharSequence> searchQuery = Observable.just(stringQuery);
         GitHubRepoViewModel favorites = mockFavoriteResult();
         when(gitHubDao.search(eq(stringQuery), eq(1), anyInt())).thenReturn(Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0)));
-        when(gitHubDao.getFavorites(stringQuery)).thenReturn(Observable.just(favorites));
+        when(gitHubDao.getAllFavorites()).thenReturn(Observable.just(favorites));
 
         searchPresenter.search(searchQuery);
 
@@ -186,7 +188,7 @@ public class SearchPresenterTest {
         Observable<CharSequence> searchQuery = Observable.just(stringQuery);
         String notFoundError = "Not found error.";
         when(gitHubDao.search(eq(stringQuery), eq(1), anyInt())).thenReturn(Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0)));
-        when(gitHubDao.getFavorites(stringQuery)).thenReturn(Observable.error(new Throwable("Error")));
+        when(gitHubDao.getAllFavorites()).thenReturn(Observable.error(new Throwable("Error")));
         when(androidUtils.getString(R.string.error_not_found, stringQuery)).thenReturn(notFoundError);
 
         searchPresenter.search(searchQuery);
@@ -201,7 +203,7 @@ public class SearchPresenterTest {
         Observable<CharSequence> searchQuery = Observable.just(stringQuery);
         String notFoundError = "Not found error.";
         when(gitHubDao.search(eq(stringQuery), eq(1), anyInt())).thenReturn(Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0)));
-        when(gitHubDao.getFavorites(stringQuery)).thenReturn(Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0)));
+        when(gitHubDao.getAllFavorites()).thenReturn(Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0)));
         when(androidUtils.getString(R.string.error_not_found, stringQuery)).thenReturn(notFoundError);
 
         searchPresenter.search(searchQuery);
@@ -214,8 +216,9 @@ public class SearchPresenterTest {
     @Test
     public void shouldSaveFavorite() throws Exception {
         GitHubRepo gitHubRepo = new GitHubRepo("0", "okhttp", "https://github.com/square/okhttp");
+        when(gitHubDao.saveFavorite(gitHubRepo)).thenReturn(Observable.just(true));
 
-        searchPresenter.saveFavorite(gitHubRepo);
+        searchPresenter.saveFavorite(gitHubRepo, 1);
 
         assertThat(gitHubRepo.isFavorite()).isTrue();
         verify(gitHubDao).saveFavorite(gitHubRepo);
@@ -224,19 +227,20 @@ public class SearchPresenterTest {
     @Test
     public void shouldRemoveFavorite() throws Exception {
         GitHubRepo gitHubRepo = new GitHubRepo("0", "okhttp", "https://github.com/square/okhttp");
+        when(gitHubDao.removeFavorite(gitHubRepo)).thenReturn(Observable.just(true));
 
-        searchPresenter.removeFavorite(gitHubRepo);
+        searchPresenter.removeFavorite(gitHubRepo, 1);
 
         assertThat(gitHubRepo.isFavorite()).isFalse();
         verify(gitHubDao).removeFavorite(gitHubRepo);
     }
 
-    @Test @Ignore // TODO
+    @Test @Ignore // TODO fix pagination
     public void shouldAppendResults_searchCalledTwice_twoPages() throws Exception {
         String query = "okhttp";
         GitHubRepoViewModel result = mockResult();
         when(gitHubDao.search(eq(query), anyInt(), anyInt())).thenReturn(Observable.just(result));
-        when(gitHubDao.getFavorites(query)).thenReturn(Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0)));
+        when(gitHubDao.getAllFavorites()).thenReturn(Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0)));
 
 //        searchPresenter.search(query);
 //        searchPresenter.searchNext(query);
@@ -244,12 +248,12 @@ public class SearchPresenterTest {
         verify(mGitHubSearchView).appendResults(result.getGitHubRepos());
     }
 
-    @Test @Ignore // TODO
+    @Test @Ignore // TODO fix pagination
     public void shouldNotAppendResults_searchCalledTwice_onePage() throws Exception {
         String query = "okhttp";
         GitHubRepoViewModel result = mockResultOnePage();
         when(gitHubDao.search(eq(query), anyInt(), anyInt())).thenReturn(Observable.just(result));
-        when(gitHubDao.getFavorites(query)).thenReturn(Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0)));
+        when(gitHubDao.getAllFavorites()).thenReturn(Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0)));
 
 //        searchPresenter.search(query);
 //        searchPresenter.searchNext(query);

@@ -15,7 +15,7 @@ public class FavoritesDbHelper extends SQLiteOpenHelper {
     private static final String CREATE_FAVORITE_TABLE = "CREATE TABLE "
             + FavoriteEntry.TABLE_NAME + " ("
             + FavoriteEntry._ID + " INTEGER PRIMARY KEY,"
-            + FavoriteEntry.COLUMN_ID + " TEXT,"
+            + FavoriteEntry.COLUMN_ID + " TEXT UNIQUE,"
             + FavoriteEntry.COLUMN_TITLE + " TEXT,"
             + FavoriteEntry.COLUMN_URL + " TEXT )";
 
