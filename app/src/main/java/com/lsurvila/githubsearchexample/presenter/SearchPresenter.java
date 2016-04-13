@@ -19,7 +19,7 @@ public class SearchPresenter {
 
     private static final String TAG = "SearchPresenter";
 
-    private final GitHubSearchView mGitHubSearchView;
+    private final GitHubSearchView gitHubSearchView;
     private final GitHubDao gitHubDao;
     private final AndroidUtils androidUtils;
     private final Paginator paginator;
@@ -29,11 +29,14 @@ public class SearchPresenter {
 
     public SearchPresenter(@NonNull GitHubSearchView gitHubSearchView, @NonNull GitHubDao gitHubDao,
                            @NonNull AndroidUtils androidUtils, @NonNull Paginator paginator) {
-        this.mGitHubSearchView = gitHubSearchView;
+        this.gitHubSearchView = gitHubSearchView;
         this.gitHubDao = gitHubDao;
         this.androidUtils = androidUtils;
         this.paginator = paginator;
     }
+
+    // TODO Critical
+    // after getting all favorites executed whole subscription will stop, investigate
 
     // TODO Should have
     // add database layer
@@ -87,21 +90,21 @@ public class SearchPresenter {
     }
 
     private void showError() {
-        mGitHubSearchView.showMessage(androidUtils.getString(R.string.error_generic));
+        gitHubSearchView.showMessage(androidUtils.getString(R.string.error_generic));
     }
 
     private void handleResult(GitHubRepoViewModel searchResults) {
         if (isQueryEmpty) {
-                mGitHubSearchView.showResults(searchResults.getGitHubRepos());
+                gitHubSearchView.showResults(searchResults.getGitHubRepos());
         } else {
             if (searchResults.getGitHubRepos().size() == 0) {
-                mGitHubSearchView.showMessage(androidUtils.getString(R.string.error_not_found, queryString));
+                gitHubSearchView.showMessage(androidUtils.getString(R.string.error_not_found, queryString));
             } else {
                 paginator.setLastPage(searchResults.getLastPage());
                 if (paginator.isFirstPage()) {
-                    mGitHubSearchView.showResults(searchResults.getGitHubRepos());
+                    gitHubSearchView.showResults(searchResults.getGitHubRepos());
                 } else {
-                    mGitHubSearchView.appendResults(searchResults.getGitHubRepos());
+                    gitHubSearchView.appendResults(searchResults.getGitHubRepos());
                 }
             }
         }
@@ -153,6 +156,6 @@ public class SearchPresenter {
     }
 
     public void requestDetails(GitHubRepo gitHubRepo) {
-        mGitHubSearchView.openDetails(gitHubRepo.getUrl());
+        gitHubSearchView.openDetails(gitHubRepo.getUrl());
     }
 }

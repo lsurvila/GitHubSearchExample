@@ -96,7 +96,10 @@ public class SearchActivityFragment extends Fragment implements GitHubSearchView
         GitHubDao gitHubDao = new GitHubDao(gitHubApi, db, modelConverter);
         presenter = new SearchPresenter(this, gitHubDao, androidUtils, paginator);
         adapter = new SearchResultAdapter();
-        adapter.setOnItemClickListener((parent, view, position, id) -> showMessage(adapter.getItem(position).getRepositoryName()));
+        adapter.setOnItemClickListener((parent, view, position, id) -> {
+            showMessage(adapter.getItem(position).getRepositoryName());
+            presenter.saveFavorite(adapter.getItem(position));
+        });
     }
 
     @Override

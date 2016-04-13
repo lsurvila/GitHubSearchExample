@@ -1,10 +1,13 @@
 package com.lsurvila.githubsearchexample.data;
 
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
 import com.google.gson.Gson;
 import com.lsurvila.githubsearchexample.AndroidUtils;
+import com.lsurvila.githubsearchexample.data.db.model.FavoriteEntry;
 import com.lsurvila.githubsearchexample.data.network.model.Item;
 import com.lsurvila.githubsearchexample.data.network.model.Repositories;
 import com.lsurvila.githubsearchexample.model.GitHubRepo;
@@ -70,6 +73,38 @@ public class ModelConverter {
             }
         }
         return null;
+    }
+
+    public GitHubRepoViewModel toViewModel(final Cursor cursor) {
+        List<GitHubRepo> gitHubRepos = new ArrayList<>();
+        GitHubRepoViewModel gitHubRepoViewModel = new GitHubRepoViewModel(gitHubRepos, 1);
+        if (cursor.moveToFirst()) {
+            while(!cursor.isAfterLast()) {
+                gitHubRepos.add(toGitHubRepo(cursor));
+                cursor.moveToNext();
+            }
+        }
+        cursor.close();
+        return gitHubRepoViewModel;
+    }
+
+    private GitHubRepo toGitHubRepo(Cursor cursor) {
+        String id = getStringFromCursor(cursor, FavoriteEntry.COLUMN_ID);
+        String name = getStringFromCursor(cursor, FavoriteEntry.COLUMN_TITLE);
+        String url = getStringFromCursor(cursor, FavoriteEntry.COLUMN_URL);
+        return new GitHubRepo(id, name, url);
+    }
+
+    private String getStringFromCursor(Cursor cursor, String columnName) {
+        return cursor.getString(cursor.getColumnIndex(columnName));
+    }
+
+    public ContentValues toContentValues(GitHubRepo repo) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(FavoriteEntry.COLUMN_ID, repo.getId());
+        contentValues.put(FavoriteEntry.COLUMN_TITLE, repo.getRepositoryName());
+        contentValues.put(FavoriteEntry.COLUMN_URL, repo.getUrl());
+        return contentValues;
     }
 
 }

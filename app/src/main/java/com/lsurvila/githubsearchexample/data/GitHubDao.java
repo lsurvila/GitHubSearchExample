@@ -31,11 +31,12 @@ public class GitHubDao {
     }
 
     public void saveFavorite(GitHubRepo gitHubRepo) {
-
+        db.insert(modelConverter.toContentValues(gitHubRepo));
     }
 
     public Observable<GitHubRepoViewModel> getAllFavorites() {
-        return Observable.just(new GitHubRepoViewModel(new ArrayList<>(), 0));
+        return db.queryAll()
+                .map(modelConverter::toViewModel);
     }
 
     public Observable<GitHubRepoViewModel> getFavorites(String query) {
